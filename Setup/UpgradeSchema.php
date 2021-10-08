@@ -11,35 +11,53 @@ use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\SchemaSetupInterface;
 use Magento\Framework\DB\Adapter\AdapterInterface;
 use Magento\Framework\DB\Ddl\Table;
+use Symfony\Component\Console\Output\OutputInterface;
+
 /**
  * @codeCoverageIgnore
  */
 class UpgradeSchema implements UpgradeSchemaInterface
 {
-
     /**
      * {@inheritdoc}
      */
     public function upgrade(SchemaSetupInterface $setup, ModuleContextInterface $context)
     {
-        $installer = $setup;
-        $installer->startSetup();
         if (version_compare($context->getVersion(), '0.0.1', '<')) {
             $this->addPaymentExpressHistoryLogTable($setup);
         }
     }
 
     /**
+     * @param SchemaSetupInterface $setup
+     * @param OutputInterface      $output
+     *
+     * @throws \Zend_Db_Exception
+     */
+    public function execute(SchemaSetupInterface $setup, OutputInterface $output)
+    {
+        $output->writeln('  |__ Create Payment Express history table');
+        $this->addPaymentExpressHistoryLogTable($setup);
+    }
+
+    /**
      * @param \Magento\Framework\Setup\SchemaSetupInterface   $setup
      * @param \Magento\Framework\Setup\ModuleContextInterface $context
+     *
+     * @throws \Zend_Db_Exception
      */
     protected function addPaymentExpressHistoryLogTable(SchemaSetupInterface $setup)
     {
-        $installer = $setup;
-        $installer->startSetup();
-        $setup->getConnection()->dropTable($setup->getTable('sm_payment_express_history'));
-        $table = $installer->getConnection()->newTable(
-            $installer->getTable('sm_payment_express_history')
+        $setup->startSetup();
+
+        if ($setup->getConnection()->isTableExists($setup->getTable('sm_payment_express_history'))) {
+            $setup->endSetup();
+
+            return;
+        }
+
+        $table = $setup->getConnection()->newTable(
+            $setup->getTable('sm_payment_express_history')
         )->addColumn(
             'id',
             Table::TYPE_INTEGER,
@@ -113,8 +131,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
             ['nullable' => false, 'default' => Table::TIMESTAMP_INIT],
             'Creation Time'
         );
-        $installer->getConnection()->createTable($table);
-
-        $installer->endSetup();
+        $setup->getConnection()->createTable($table);
+        $setup->endSetup();
     }
 }
