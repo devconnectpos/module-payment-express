@@ -49,7 +49,7 @@ class PaymentExpressManagement extends ServiceAbstract
     private $httpClientFactory;
 
     /**
-     * @var Magento\Framework\Simplexml\ElementFactory
+     * @var \Magento\Framework\Simplexml\ElementFactory
      */
     private $xmlElFactory;
 
