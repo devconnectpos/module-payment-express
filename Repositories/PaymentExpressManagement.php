@@ -294,12 +294,12 @@ class PaymentExpressManagement extends ServiceAbstract
                    ->addFieldToFilter('station_id', $searchCriteria['station_id'])
                    ->addFieldToFilter('hit_key', $searchCriteria['hit_key'])
                    ->addFieldToFilter('hit_username', $searchCriteria['hit_username']);
-        if (is_nan($searchCriteria->getData('currentPage'))) {
+        if (is_nan((float)$searchCriteria->getData('currentPage'))) {
             $collection->setCurPage(1);
         } else {
             $collection->setCurPage($searchCriteria->getData('currentPage'));
         }
-        if (is_nan($searchCriteria->getData('pageSize'))) {
+        if (is_nan((float)$searchCriteria->getData('pageSize'))) {
             $collection->setPageSize(
                 DataConfig::PAGE_SIZE_LOAD_DATA
             );
